@@ -1,4 +1,4 @@
-const {  User } = require("../models/index");
+const {  User , Messages, ChatRoom} = require("../models");
 
 let isValidUser = async function (email) {
     let seller = null;
@@ -36,10 +36,31 @@ let addUser = async function (data) {
   }
   return user;
 };
+let createChatRoom = async function (data) {
+  let room = null;
+  try {
+    room = await new ChatRoom(data).save();
+  } catch (err) {
+    console.log(err);
+  }
+  return room;
+};
 
+let saveMessage = async function (data) {
+  let message = null;
+  try {
+    message = await new Messages(data).save();
+  } catch (err) {
+    console.log(err);
+  }
+  return message;
+};
 module.exports = {
     IsValidUser : isValidUser,
     IsUniqeUser : isUniqeUser,
-    AddUser : addUser
+    AddUser : addUser,
+    SaveMessage : saveMessage,
+    CreateChatRoom : createChatRoom
+  
 
 };

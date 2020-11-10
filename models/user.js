@@ -7,9 +7,13 @@ const userSchema = new mongoose.Schema(
   { 
     name: {
       type: String,
-      lowercase: true,
       trim: true,
       required: true,
+    },
+    avatar: {
+      type: String,
+      lowercase: true,
+      trim: true,
     },
     email: {
       type: String,

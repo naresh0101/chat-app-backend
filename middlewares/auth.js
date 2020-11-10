@@ -1,4 +1,4 @@
-const {Customer} = require("../models");
+const {User} = require("../models");
 
 var apiKeyAuthVerify = async function (req, res, next) {
     let resBody = { success: false },
@@ -9,7 +9,7 @@ var apiKeyAuthVerify = async function (req, res, next) {
       resBody.message = "API Key authentication header required";
       return res.status(401).json(resBody); // Terminate
     }
-    let user = await Customer.aggregate(
+    let user = await User.aggregate(
       [ 
         {$match : {api_key :  apiKeyHead}},
         {$group: {_id:{ api_key : "$api_key", _id: "$_id" } }}

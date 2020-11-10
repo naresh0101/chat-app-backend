@@ -5,10 +5,14 @@ const db = require("./loders/mongodb")
 const dotenv = require('dotenv');
 const express = require("express");
 const fs = require("fs");
+const bodyParser = require('body-parser');
+const { Logger } = require("mongodb");
+const { Socket } = require("socket.io");
 
 // Creating express application object
 let app = express()
 app.use(express.json()) // parse application/json
+app.use(bodyParser.json())
 app.use(cors()) // CORS
 app.use(express.urlencoded({extended: false})) // parse application/x-www-form-urlencoded
 app.use(express.static("public"));
@@ -38,6 +42,34 @@ app.use((err, req, res, next) => {
 })
 
 const PORT = config.port;
-app.listen(PORT, () => {
-  console.log(`       Server running on port ${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
+// socket io connection 
+var io = module.exports.io = require('socket.io')(server,{
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST","PUT","DELETE"],
+      allowedHeaders: ["my-custom-header"],
+      credentials: true
+    }
+  }) // CORS]]]
+
+
+const users = {}
+io.on('connection', (socket) => {
+    socket.on('NEW_USER_CONNECTED', function(data){
+      socket.broadcast.emit("USER_JOINED")
+    })
+    // socket.on("SEND",( data)=>{
+    //   console.log(data);
+    // })
+    socket.on("SEND_CHAT_MESSAGE",( data)=>{
+      // console.log(data,"SEND_CHAT_MESSAGE");
+        socket.broadcast.emit("CHAT_MESSAGE", data)
+
+    })
+
 });
