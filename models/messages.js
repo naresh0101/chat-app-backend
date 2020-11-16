@@ -1,15 +1,16 @@
+const { string } = require("@hapi/joi");
 const mongoose = require("mongoose");
 const mongooseBcrypt = require("mongoose-bcrypt");
 const mongooseTimeStamp = require("mongoose-timestamp");
 
 const messageSchema = new mongoose.Schema(
   { 
-    sendbyId: {
-      type: mongoose.Schema.Types.ObjectId,
+    auther: {
+      type: String,
       required: true,
     },
-    sendtoId: {
-        type: mongoose.Schema.Types.ObjectId,
+    to: {
+        type: String,
         lowercase: true,
         trim: true,
         required: true,
@@ -22,7 +23,7 @@ const messageSchema = new mongoose.Schema(
     time: {
       type: String,
       trim: true,
-      required: true,
+      // required: true,
    },
   },
   { collection: "message" }

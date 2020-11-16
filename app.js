@@ -7,14 +7,16 @@ const express = require("express");
 const fs = require("fs");
 const bodyParser = require('body-parser');
 const { Logger } = require("mongodb");
-const { Socket } = require("socket.io");
+const socket = require("socket.io");
+const messageController = require("./controllers/message")
+
 
 // Creating express application object
 let app = express()
 app.use(express.json()) // parse application/json
 app.use(bodyParser.json())
 app.use(cors()) // CORS
-app.use(express.urlencoded({extended: false})) // parse application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: false })) // parse application/x-www-form-urlencoded
 app.use(express.static("public"));
 
 // Initialize Routes
@@ -43,33 +45,32 @@ app.use((err, req, res, next) => {
 
 const PORT = config.port;
 const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
 
 // socket io connection 
-var io = module.exports.io = require('socket.io')(server,{
+var io = require('socket.io')(server, {
     cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST","PUT","DELETE"],
-      allowedHeaders: ["my-custom-header"],
-      credentials: true
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
     }
-  }) // CORS]]]
+}) // CORS]]]
 
+const onlineUsers = { 
 
-const users = {}
-io.on('connection', (socket) => {
-    socket.on('NEW_USER_CONNECTED', function(data){
-      socket.broadcast.emit("USER_JOINED")
-    })
-    // socket.on("SEND",( data)=>{
-    //   console.log(data);
-    // })
-    socket.on("SEND_CHAT_MESSAGE",( data)=>{
-      // console.log(data,"SEND_CHAT_MESSAGE");
-        socket.broadcast.emit("CHAT_MESSAGE", data)
-
-    })
-
+}
+io.on('connection', function(socket){
+    // listen create and join room from client
+    socket.on('create-socket', function(nameroom){
+        socket.join(nameroom); 
+    });
+    // listen message from client
+    socket.on('client-send-message',async function(message){
+        console.log(message);
+        io.in(message.auther).emit('key-chat', message);
+        messageController.savemessage(message)
+    });
 });
